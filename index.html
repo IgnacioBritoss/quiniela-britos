@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Simulador Instantánea PRO</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background: linear-gradient(#0b5ed7, #198754);
+    padding:20px;
+    color:#fff;
+}
+
+.container{
+    background:#ffffff;
+    color:#000;
+    border-radius:15px;
+    padding:20px;
+    max-width:950px;
+    margin:auto;
+    box-shadow:0 0 20px rgba(0,0,0,0.4);
+}
+
+.header{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    background:#198754;
+    padding:15px;
+    border-radius:10px;
+    color:white;
+}
+
+.logo{
+    width:60px;
+    height:60px;
+    background:radial-gradient(circle at 30% 30%, #8fff8f, #0b5ed7);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:30px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+}
+
+th{
+    background:#0b5ed7;
+    color:white;
+}
+
+th,td{
+    border:1px solid #ccc;
+    padding:8px;
+    text-align:center;
+}
+
+input{ width:70px; }
+
+button{
+    background:#0b5ed7;
+    color:white;
+    border:none;
+    padding:10px 15px;
+    margin-top:10px;
+    border-radius:8px;
+    font-size:16px;
+    cursor:pointer;
+}
+
+button:hover{ background:#198754; }
+
+.sorteoBox{
+    background:#e9ecef;
+    color:#000;
+    margin-top:20px;
+    padding:15px;
+    border-radius:10px;
+}
+
+.sorteoGrid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    font-size:18px;
+    text-align:center;
+}
+
+.numeroAnimado{
+    animation: aparecer 0.5s ease;
+}
+
+@keyframes aparecer{
+    from{transform:scale(0); opacity:0;}
+    to{transform:scale(1); opacity:1;}
+}
+
+.resultados{
+    margin-top:20px;
+    padding:15px;
+    border-radius:10px;
+    background:#d1e7dd;
+    color:#000;
+}
+
+.perdedor{ background:#f8d7da; }
+
+.barra{
+    color:#198754;
+    font-weight:bold;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="header">
+<div class="logo">🦗</div>
+<h1>Instantánea Quiniela</h1>
+</div>
+
+<label>Cantidad de jugadas:</label>
+<input type="number" id="cantidad" min="1" max="10" value="1">
+<button onclick="crearTabla()">Crear</button>
+
+<table id="tabla" style="display:none;">
+<thead>
+<tr>
+<th>Número</th>
+<th>Cifras</th>
+<th>Cabeza $</th>
+<th>A los 5 $</th>
+<th>A los 10 $</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<button onclick="jugar()">Jugar</button>
+<button onclick="verificar()">Verificar boleta</button>
+<button onclick="verHistorial()">Ver estadísticas</button>
+<button onclick="resetearHistorial()">Reset estadísticas</button>
+
+<div id="sorteo" class="sorteoBox" style="display:none;"></div>
+<div id="resultado" class="resultados" style="display:none;"></div>
+<div id="estadisticas" class="sorteoBox" style="display:none;"></div>
+
+</div>
+
+<script>
+let sorteoGlobal=[];
+let jugadasGlobal=[];
+
+let historialSorteos=[];
+let frecuencia2Cifras=Array(100).fill(0);
+let frecuencia3Cifras=Array(1000).fill(0);
+
+function crearTabla(){
+    const cantidad=document.getElementById("cantidad").value;
+    const tbody=document.querySelector("#tabla tbody");
+    tbody.innerHTML="";
+
+    for(let i=0;i<cantidad;i++){
+        tbody.innerHTML+=`
+        <tr>
+        <td><input type="number" class="numero"></td>
+        <td>
+        <select class="cifras">
+        <option value="3">3</option>
+        <option value="2">2</option>
+        </select>
+        </td>
+        <td><input type="number" class="cabeza" value="0"></td>
+        <td><input type="number" class="cinco" value="0"></td>
+        <td><input type="number" class="diez" value="0"></td>
+        </tr>`;
+    }
+
+    document.getElementById("tabla").style.display="table";
+}
+
+function generarSorteo(){
+    let nums=[];
+    while(nums.length<10){
+        let n=Math.floor(Math.random()*1000);
+        if(!nums.includes(n)) nums.push(n);
+    }
+    return nums;
+}
+
+function actualizarHistorial(sorteo){
+    historialSorteos.push(sorteo);
+
+    sorteo.forEach(num=>{
+        frecuencia3Cifras[num]++;
+        frecuencia2Cifras[num%100]++;
+    });
+}
+
+function jugar(){
+
+    const filas=document.querySelectorAll("#tabla tbody tr");
+    jugadasGlobal=[];
+
+    filas.forEach(fila=>{
+        const numero=parseInt(fila.querySelector(".numero").value);
+        const cifras=parseInt(fila.querySelector(".cifras").value);
+        const cabeza=parseInt(fila.querySelector(".cabeza").value)||0;
+        const cinco=parseInt(fila.querySelector(".cinco").value)||0;
+        const diez=parseInt(fila.querySelector(".diez").value)||0;
+
+        if(!isNaN(numero)){
+            jugadasGlobal.push({numero,cifras,cabeza,cinco,diez});
+        }
+    });
+
+    if(jugadasGlobal.length===0){
+        alert("Cargá al menos un número");
+        return;
+    }
+
+    sorteoGlobal=generarSorteo();
+    actualizarHistorial(sorteoGlobal);
+
+    mostrarSorteoAnimado();
+}
+
+function mostrarSorteoAnimado(){
+    document.getElementById("sorteo").style.display="block";
+    document.getElementById("sorteo").innerHTML=`<h3>Sorteo</h3>
+    <div class="sorteoGrid">
+        <div id="col1"></div>
+        <div id="col2"></div>
+    </div>`;
+
+    let i=0;
+    const intervalo=setInterval(()=>{
+        const num=sorteoGlobal[i].toString().padStart(3,'0');
+        const destino=i<5 ? document.getElementById("col1") : document.getElementById("col2");
+
+        destino.innerHTML+=`<div class="numeroAnimado">${i+1}° ${num}</div>`;
+        i++;
+
+        if(i>=10) clearInterval(intervalo);
+
+    },300);
+}
+
+function verificar(){
+
+    if(sorteoGlobal.length===0){
+        alert("Primero jugá");
+        return;
+    }
+
+    let premio=0;
+    let aciertos=[];
+
+    jugadasGlobal.forEach(j=>{
+        const numComp=j.cifras==2 ? j.numero%100 : j.numero;
+        const sorteoComp=sorteoGlobal.map(n=>j.cifras==2 ? n%100 : n);
+
+        if(j.cabeza>0 && numComp===sorteoComp[0]){
+            let mult=j.cifras==2 ? 70 : 3500;
+            premio+=j.cabeza*mult;
+            aciertos.push(`${j.numero} cabeza`);
+        }
+
+        if(j.cinco>0 && sorteoComp.slice(0,5).includes(numComp)){
+            let mult=j.cifras==2 ? 14 : 600;
+            premio+=j.cinco*mult;
+            aciertos.push(`${j.numero} a los 5`);
+        }
+
+        if(j.diez>0 && sorteoComp.includes(numComp)){
+            let mult=j.cifras==2 ? 7 : 70;
+            premio+=j.diez*mult;
+            aciertos.push(`${j.numero} a los 10`);
+        }
+    });
+
+    const res=document.getElementById("resultado");
+    res.style.display="block";
+
+    if(premio>0){
+        res.className="resultados";
+        res.innerHTML=`<h3>Resultado</h3>
+        Aciertos: ${aciertos.join(", ")}<br>
+        <strong>Ganaste: $${premio}</strong>`;
+    }else{
+        res.className="resultados perdedor";
+        res.innerHTML=`<h3>Resultado</h3>No hubo aciertos`;
+    }
+}
+
+function topFrecuentes(arr,cantidad,cifras,asc=false){
+    let lista=arr.map((v,i)=>({numero:i,veces:v}));
+    lista.sort((a,b)=> asc ? a.veces-b.veces : b.veces-a.veces);
+
+    return lista.slice(0,cantidad).map(e=>{
+        let n=e.numero.toString().padStart(cifras,'0');
+        let barra="█".repeat(Math.min(e.veces,20));
+        return `${n} (${e.veces}) <br><span class="barra">${barra}</span>`;
+    }).join("<br>");
+}
+
+function verHistorial(){
+
+    if(historialSorteos.length===0){
+        alert("Todavía no hay sorteos");
+        return;
+    }
+
+    const top2=topFrecuentes(frecuencia2Cifras,10,2,false);
+    const top3=topFrecuentes(frecuencia3Cifras,10,3,false);
+    const frios2=topFrecuentes(frecuencia2Cifras,10,2,true);
+    const frios3=topFrecuentes(frecuencia3Cifras,10,3,true);
+
+    const div=document.getElementById("estadisticas");
+    div.style.display="block";
+
+    div.innerHTML=`
+    <h3>📊 Estadísticas</h3>
+    Sorteos realizados: ${historialSorteos.length}
+
+    <h4>🔥 Calientes 2 cifras</h4>${top2}
+    <h4>🔥 Calientes 3 cifras</h4>${top3}
+
+    <h4>❄️ Fríos 2 cifras</h4>${frios2}
+    <h4>❄️ Fríos 3 cifras</h4>${frios3}
+    `;
+}
+
+function resetearHistorial(){
+    historialSorteos=[];
+    frecuencia2Cifras=Array(100).fill(0);
+    frecuencia3Cifras=Array(1000).fill(0);
+    document.getElementById("estadisticas").style.display="none";
+    alert("Historial borrado");
+}
+</script>
+
+</body>
+</html>
