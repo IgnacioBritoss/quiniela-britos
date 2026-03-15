@@ -1,118 +1,630 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Simulador Instantánea PRO</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Instantánea Quiniela PRO</title>
 
 <style>
+:root{
+    --bg-1:#0a2342;
+    --bg-2:#0f4c81;
+    --bg-3:#12735a;
+    --bg-4:#1f9d78;
+
+    --card:#ffffff;
+    --card-soft:#f4f8fc;
+
+    --text:#0f172a;
+    --muted:#5b6472;
+    --line:#d8e2ee;
+
+    --primary:#0f63d8;
+    --primary-2:#0a4ca8;
+
+    --success:#168f63;
+    --success-2:#0f6f4c;
+
+    --danger:#d6455d;
+    --danger-2:#b52f49;
+
+    --warning:#f6c343;
+    --warning-2:#e2a514;
+
+    --blue-soft:#eaf3ff;
+    --green-soft:#eafbf4;
+
+    --shadow:0 20px 55px rgba(0,0,0,.22);
+    --radius:20px;
+}
+
+*{ box-sizing:border-box; }
+
 body{
-    font-family: Arial, sans-serif;
-    background: linear-gradient(#0b5ed7, #198754);
-    padding:20px;
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
     color:#fff;
+    background:
+        radial-gradient(circle at 12% 18%, rgba(255,255,255,.08) 0 2px, transparent 3px),
+        radial-gradient(circle at 82% 22%, rgba(255,255,255,.06) 0 2px, transparent 3px),
+        radial-gradient(circle at 22% 78%, rgba(255,255,255,.05) 0 1.5px, transparent 3px),
+        linear-gradient(140deg, rgba(255,255,255,.05), transparent 30%),
+        linear-gradient(135deg, var(--bg-1), var(--bg-2) 45%, var(--bg-3) 78%, var(--bg-4));
+    background-size:auto, auto, auto, auto, auto;
+    min-height:100vh;
+    padding:24px;
 }
 
 .container{
-    background:#ffffff;
-    color:#000;
-    border-radius:15px;
-    padding:20px;
-    max-width:950px;
+    max-width:1260px;
     margin:auto;
-    box-shadow:0 0 20px rgba(0,0,0,0.4);
+    display:grid;
+    gap:18px;
+}
+
+.card{
+    background:rgba(255,255,255,.98);
+    color:var(--text);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.45);
 }
 
 .header{
+    padding:24px 24px 20px;
+    background:
+        radial-gradient(circle at top right, rgba(255,255,255,.25), transparent 25%),
+        linear-gradient(135deg, rgba(18,115,90,.98), rgba(31,157,120,.95) 35%, rgba(15,99,216,.95) 72%, rgba(10,76,168,.98));
+    color:#eef8ff;
+    position:relative;
+}
+
+.header::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+        repeating-linear-gradient(
+            -45deg,
+            rgba(255,255,255,.035) 0px,
+            rgba(255,255,255,.035) 10px,
+            transparent 10px,
+            transparent 22px
+        );
+    pointer-events:none;
+}
+
+.brand{
+    position:relative;
+    z-index:1;
     display:flex;
     align-items:center;
-    gap:15px;
-    background:#198754;
-    padding:15px;
-    border-radius:10px;
-    color:white;
+    gap:16px;
+    flex-wrap:wrap;
 }
 
 .logo{
-    width:60px;
-    height:60px;
-    background:radial-gradient(circle at 30% 30%, #8fff8f, #0b5ed7);
-    border-radius:50%;
+    width:92px;
+    height:92px;
+    border-radius:24px;
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:30px;
+    font-size:42px;
+    background:
+        linear-gradient(135deg, rgba(255,255,255,.97), rgba(234,249,255,.92));
+    box-shadow:0 12px 28px rgba(0,0,0,.16);
+    border:3px solid rgba(255,255,255,.75);
+    flex-shrink:0;
+}
+
+.brand h1{
+    margin:0;
+    font-size:34px;
+    line-height:1.05;
+    letter-spacing:.2px;
+}
+
+.brand p{
+    margin:8px 0 0;
+    font-size:14px;
+    max-width:760px;
+    color:#e8f7ff;
+}
+
+.topBadges{
+    position:relative;
+    z-index:1;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:16px;
+}
+
+.badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:9px 12px;
+    border-radius:999px;
+    background:rgba(255,255,255,.14);
+    border:1px solid rgba(255,255,255,.22);
+    font-weight:bold;
+    font-size:13px;
+    color:#f3fbff;
+    backdrop-filter:blur(3px);
+}
+
+.section{
+    padding:18px;
+}
+
+.grid{
+    display:grid;
+    gap:14px;
+}
+
+.grid-2{
+    grid-template-columns:1.12fr .88fr;
+}
+
+.panel{
+    background:
+        linear-gradient(180deg, #f9fbff, #f4f8fc);
+    border:1px solid #e4edf7;
+    border-radius:18px;
+    padding:14px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
+}
+
+.panel h3{
+    margin:0 0 12px;
+    font-size:17px;
+}
+
+.panel p{
+    margin:0;
+    color:var(--muted);
+    font-size:13px;
+}
+
+.controlsWrap{
+    display:grid;
+    grid-template-columns:repeat(12,1fr);
+    gap:12px;
+}
+
+.field{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+}
+
+.field label{
+    font-size:13px;
+    color:var(--muted);
+    font-weight:bold;
+}
+
+input[type="number"], select{
+    width:100%;
+    padding:12px;
+    border-radius:13px;
+    border:1px solid var(--line);
+    background:#fff;
+    font-size:15px;
+    outline:none;
+    transition:.18s;
+}
+
+input[type="number"]:focus, select:focus{
+    border-color:#88b8ff;
+    box-shadow:0 0 0 4px rgba(15,99,216,.11);
+}
+
+button{
+    border:none;
+    border-radius:13px;
+    padding:12px 16px;
+    font-size:15px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.18s;
+}
+
+button:hover{
+    transform:translateY(-1px);
+}
+
+.btn-primary{
+    background:linear-gradient(135deg, var(--primary), var(--primary-2));
+    color:#fff;
+}
+
+.btn-success{
+    background:linear-gradient(135deg, var(--success), var(--success-2));
+    color:#fff;
+}
+
+.btn-warning{
+    background:linear-gradient(135deg, var(--warning), var(--warning-2));
+    color:#10243a;
+}
+
+.btn-danger{
+    background:linear-gradient(135deg, var(--danger), var(--danger-2));
+    color:#fff;
+}
+
+.btn-soft{
+    background:#eaf3ff;
+    color:#184b9a;
+    border:1px solid #d5e5ff;
+}
+
+.btn-ghost{
+    background:#f5f8fb;
+    color:#344256;
+    border:1px solid #dfe7f0;
+}
+
+.btn-classic{
+    background:linear-gradient(135deg, #1b8b68, #0f63d8);
+    color:#fff;
+}
+
+.actionRow{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:end;
+}
+
+.quickButtons{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+.quickButtons button{
+    padding:9px 12px;
+    font-size:14px;
+    border-radius:999px;
+}
+
+.tableWrap{
+    overflow:auto;
+    border-radius:18px;
+    border:1px solid #dfe8f2;
+    background:white;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
 }
 
 table{
     width:100%;
     border-collapse:collapse;
-    margin-top:10px;
+    min-width:760px;
+}
+
+th, td{
+    padding:11px 10px;
+    border-bottom:1px solid #edf2f7;
+    text-align:center;
 }
 
 th{
-    background:#0b5ed7;
-    color:white;
+    background:
+        linear-gradient(135deg, #115c8f, #0f63d8 55%, #168f63);
+    color:#fff;
+    font-size:14px;
 }
 
-th,td{
-    border:1px solid #ccc;
-    padding:8px;
-    text-align:center;
+tbody tr:nth-child(even){
+    background:#fbfdff;
 }
 
-input{ width:70px; }
-
-button{
-    background:#0b5ed7;
-    color:white;
-    border:none;
-    padding:10px 15px;
-    margin-top:10px;
-    border-radius:8px;
-    font-size:16px;
-    cursor:pointer;
+tbody tr:hover{
+    background:#f3f9ff;
 }
 
-button:hover{ background:#198754; }
+.smallInput{ width:92px; margin:auto; }
+.numInput{ width:115px; margin:auto; }
+
+.moneyBtns{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    justify-content:center;
+    margin-top:8px;
+}
+
+.moneyBtns button{
+    background:#f2fbf7;
+    color:#146447;
+    border:1px solid #caecd9;
+    padding:7px 9px;
+    font-size:12px;
+    border-radius:999px;
+}
+
+.summaryBox{
+    display:grid;
+    gap:12px;
+}
+
+.statCards{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+}
+
+.stat{
+    background:
+        linear-gradient(180deg, #ffffff, #f7fbff);
+    border:1px solid #e4edf7;
+    border-radius:18px;
+    padding:14px;
+    min-width:0;
+    position:relative;
+    overflow:hidden;
+}
+
+.stat::before{
+    content:"";
+    position:absolute;
+    inset:0 0 auto 0;
+    height:4px;
+    background:linear-gradient(90deg, #168f63, #0f63d8);
+}
+
+.stat span{
+    display:block;
+    color:var(--muted);
+    font-size:12px;
+    margin-bottom:6px;
+    font-weight:bold;
+    text-transform:uppercase;
+}
+
+.stat strong{
+    font-size:24px;
+    display:block;
+    word-break:break-word;
+}
+
+.ticket{
+    background:
+        linear-gradient(180deg, #ffffff, #f7fbff);
+    border:2px dashed #bfd3e6;
+    border-radius:18px;
+    padding:16px;
+}
+
+.ticketHeader{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    align-items:center;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+}
+
+.ticketTitle{
+    font-size:20px;
+    font-weight:bold;
+}
+
+.ticketMeta{
+    color:var(--muted);
+    font-size:13px;
+}
+
+.ticket table{
+    min-width:unset;
+}
+
+.ticket th{
+    background:#e7f0fa;
+    color:#153f6d;
+}
 
 .sorteoBox{
-    background:#e9ecef;
-    color:#000;
-    margin-top:20px;
+    background:
+        linear-gradient(180deg, #f7fbff, #f1f8ff);
+    border:1px solid #d9e8f7;
+    border-radius:18px;
     padding:15px;
-    border-radius:10px;
+    overflow:hidden;
 }
 
-.sorteoGrid{
+.sorteosLista{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:12px;
+    margin-top:12px;
+}
+
+.sorteoItem{
+    background:#fff;
+    border:1px solid #dbe7f6;
+    border-radius:16px;
+    padding:14px;
+    min-width:0;
+    box-shadow:0 6px 18px rgba(12,58,102,.06);
+}
+
+.sorteoItem h4{
+    margin:0 0 10px;
+    font-size:18px;
+    color:#15365d;
+}
+
+.bolillasGrid{
     display:grid;
     grid-template-columns:1fr 1fr;
     gap:10px;
+}
+
+.bolilla{
+    background:
+        linear-gradient(180deg, #fbfdff, #f4f9ff);
+    border:1px solid #dbe7f5;
+    border-radius:13px;
+    padding:10px 12px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    font-weight:bold;
+    min-width:0;
+}
+
+.bolilla span:last-child{
     font-size:18px;
-    text-align:center;
-}
-
-.numeroAnimado{
-    animation: aparecer 0.5s ease;
-}
-
-@keyframes aparecer{
-    from{transform:scale(0); opacity:0;}
-    to{transform:scale(1); opacity:1;}
+    flex-shrink:0;
+    color:#102c52;
 }
 
 .resultados{
-    margin-top:20px;
-    padding:15px;
-    border-radius:10px;
-    background:#d1e7dd;
-    color:#000;
+    border-radius:18px;
+    padding:16px;
+    border:1px solid #cdebd7;
+    background:linear-gradient(180deg, #effff5, #e7fff0);
 }
 
-.perdedor{ background:#f8d7da; }
+.resultados.perdedor{
+    background:linear-gradient(180deg, #fff4f6, #ffedf1);
+    border-color:#f1c8d1;
+}
+
+.resultadoTop{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    align-items:flex-start;
+    flex-wrap:wrap;
+}
+
+.ganancia{
+    font-size:28px;
+    font-weight:bold;
+}
+
+.loss{ color:#b42318; }
+.win{ color:#146c43; }
+
+.aciertosList{
+    margin-top:12px;
+    display:grid;
+    gap:8px;
+}
+
+.hit{
+    background:#fff;
+    border:1px solid #dcefe4;
+    border-radius:12px;
+    padding:10px 12px;
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.columns2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+}
+
+.statsBox{
+    background:linear-gradient(180deg, #f9fcff, #f4f9ff);
+    border:1px solid #e2ecf7;
+    border-radius:18px;
+    padding:14px;
+}
+
+.statsBox h4{
+    margin:0 0 10px;
+    font-size:16px;
+}
+
+.rankList{
+    display:grid;
+    gap:8px;
+}
+
+.rankItem{
+    background:white;
+    border:1px solid #ebf0f7;
+    border-radius:12px;
+    padding:10px;
+}
+
+.rankTop{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    font-weight:bold;
+}
+
+.barraWrap{
+    margin-top:7px;
+    height:9px;
+    border-radius:999px;
+    background:#edf2f7;
+    overflow:hidden;
+}
 
 .barra{
-    color:#198754;
-    font-weight:bold;
+    height:100%;
+    border-radius:999px;
+    background:linear-gradient(90deg, #168f63, #0f63d8);
+}
+
+.empty{
+    padding:16px;
+    border-radius:14px;
+    background:#f4fbf7;
+    border:1px solid #cfe9da;
+    color:#225742;
+}
+
+.hide{
+    display:none !important;
+}
+
+@media (max-width: 1100px){
+    .grid-2{
+        grid-template-columns:1fr;
+    }
+}
+
+@media (max-width: 980px){
+    .columns2,
+    .statCards{
+        grid-template-columns:1fr;
+    }
+
+    .controlsWrap{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    body{
+        padding:14px;
+    }
+
+    .brand h1{
+        font-size:26px;
+    }
+
+    .bolillasGrid{
+        grid-template-columns:1fr;
+    }
+
+    table{
+        min-width:680px;
+    }
 }
 </style>
 </head>
@@ -120,230 +632,722 @@ button:hover{ background:#198754; }
 
 <div class="container">
 
-<div class="header">
-<div class="logo">🦗</div>
-<h1>Instantánea Quiniela</h1>
-</div>
+    <div class="card">
+        <div class="header">
+            <div class="brand">
+                <div class="logo">🪶</div>
+                <div>
+                    <h1>Instantánea Quiniela PRO</h1>
+                    <p>Boletas más rápidas, varios sorteos distintos para la misma carga y estadísticas claras de gasto, ganancia y balance.</p>
+                </div>
+            </div>
 
-<label>Cantidad de jugadas:</label>
-<input type="number" id="cantidad" min="1" max="10" value="1">
-<button onclick="crearTabla()">Crear</button>
+            <div class="topBadges">
+                <div class="badge">Verificación automática</div>
+                <div class="badge">Varios sorteos distintos</div>
+                <div class="badge">Carga masiva de montos</div>
+                <div class="badge">Balance guardado</div>
+            </div>
+        </div>
+    </div>
 
-<table id="tabla" style="display:none;">
-<thead>
-<tr>
-<th>Número</th>
-<th>Cifras</th>
-<th>Cabeza $</th>
-<th>A los 5 $</th>
-<th>A los 10 $</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
+    <div class="grid grid-2">
+        <div class="card">
+            <div class="section">
 
-<button onclick="jugar()">Jugar</button>
-<button onclick="verificar()">Verificar boleta</button>
-<button onclick="verHistorial()">Ver estadísticas</button>
-<button onclick="resetearHistorial()">Reset estadísticas</button>
+                <div class="panel" style="margin-bottom:14px;">
+                    <h3>Preparar boleta</h3>
 
-<div id="sorteo" class="sorteoBox" style="display:none;"></div>
-<div id="resultado" class="resultados" style="display:none;"></div>
-<div id="estadisticas" class="sorteoBox" style="display:none;"></div>
+                    <div class="controlsWrap">
+                        <div class="field" style="grid-column: span 3;">
+                            <label>Cantidad de números</label>
+                            <input type="number" id="cantidad" min="1" max="25" value="3">
+                        </div>
+
+                        <div class="field" style="grid-column: span 3;">
+                            <label>Cantidad de sorteos</label>
+                            <input type="number" id="cantidadSorteos" min="1" max="50" value="1">
+                        </div>
+
+                        <div class="field" style="grid-column: span 6;">
+                            <label>Acciones</label>
+                            <div class="actionRow">
+                                <button class="btn-primary" onclick="crearTabla()">Crear / actualizar</button>
+                                <button class="btn-soft" onclick="agregarFila()">Agregar fila</button>
+                                <button class="btn-ghost" onclick="limpiarJugadas()">Limpiar boleta</button>
+                                <button class="btn-classic" onclick="cargarJugadaClasica()">Cargar jugada clásica</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel" style="margin-bottom:14px;">
+                    <h3>Carga rápida de montos</h3>
+                    <p>Aplicá un solo monto a todas las filas para no escribirlo una y otra vez.</p>
+
+                    <div class="controlsWrap" style="margin-top:12px;">
+                        <div class="field" style="grid-column: span 3;">
+                            <label>Monto</label>
+                            <input type="number" id="montoMasivo" min="0" step="1" value="100">
+                        </div>
+
+                        <div class="field" style="grid-column: span 9;">
+                            <label>Aplicar a</label>
+                            <div class="actionRow">
+                                <button class="btn-soft" onclick="aplicarMontoMasivo('cabeza')">Cabeza</button>
+                                <button class="btn-soft" onclick="aplicarMontoMasivo('cinco')">A los 5</button>
+                                <button class="btn-soft" onclick="aplicarMontoMasivo('diez')">A los 10</button>
+                                <button class="btn-warning" onclick="aplicarMontoMasivo('todos')">Los 3 campos</button>
+                                <button class="btn-ghost" onclick="vaciarMontos()">Vaciar montos</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quickButtons" style="margin-top:12px;">
+                        <button type="button" class="btn-ghost" onclick="setMontoRapido(50)">$50</button>
+                        <button type="button" class="btn-ghost" onclick="setMontoRapido(100)">$100</button>
+                        <button type="button" class="btn-ghost" onclick="setMontoRapido(200)">$200</button>
+                        <button type="button" class="btn-ghost" onclick="setMontoRapido(500)">$500</button>
+                        <button type="button" class="btn-ghost" onclick="setMontoRapido(1000)">$1000</button>
+                    </div>
+                </div>
+
+                <div class="tableWrap">
+                    <table id="tabla">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Número</th>
+                                <th>Cifras</th>
+                                <th>Cabeza $</th>
+                                <th>A los 5 $</th>
+                                <th>A los 10 $</th>
+                                <th>Carga rápida</th>
+                                <th>Fila</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="actionRow" style="margin-top:14px;">
+                    <button class="btn-success" onclick="jugar()">Jugar ahora</button>
+                    <button class="btn-primary" onclick="verHistorial()">Ver estadísticas</button>
+                    <button class="btn-danger" onclick="resetearHistorial()">Reset estadísticas</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section">
+                <div class="summaryBox">
+                    <div class="statCards">
+                        <div class="stat">
+                            <span>Números en boleta</span>
+                            <strong id="numerosBoleta">0</strong>
+                        </div>
+                        <div class="stat">
+                            <span>Sorteos a jugar</span>
+                            <strong id="sorteosBoleta">1</strong>
+                        </div>
+                        <div class="stat">
+                            <span>Total apostado</span>
+                            <strong id="totalApostado">$0</strong>
+                        </div>
+                    </div>
+
+                    <div class="ticket">
+                        <div class="ticketHeader">
+                            <div>
+                                <div class="ticketTitle">Boleta actual</div>
+                                <div class="ticketMeta">Muestra una sola boleta. La cantidad de sorteos se cuenta aparte.</div>
+                            </div>
+                            <div class="badge" style="color:#1b4e8f; background:#edf5ff; border-color:#d6e6ff;">Vista previa</div>
+                        </div>
+                        <div id="ticketContenido" class="empty">Cargá tus números y montos para ver la boleta.</div>
+                    </div>
+
+                    <div id="sorteo" class="sorteoBox hide">
+                        <h3 style="margin:0;">Sorteos generados</h3>
+                        <div id="sorteosLista" class="sorteosLista"></div>
+                    </div>
+
+                    <div id="resultado" class="resultados hide"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="estadisticasCard" class="card hide">
+        <div class="section">
+            <h2 style="margin-top:0;">Estadísticas generales</h2>
+            <div id="estadisticas"></div>
+        </div>
+    </div>
 
 </div>
 
 <script>
-let sorteoGlobal=[];
-let jugadasGlobal=[];
+let sorteosGlobal = [];
+let jugadasGlobal = [];
 
-let historialSorteos=[];
-let frecuencia2Cifras=Array(100).fill(0);
-let frecuencia3Cifras=Array(1000).fill(0);
+let historialSorteos = [];
+let frecuencia2Cifras = Array(100).fill(0);
+let frecuencia3Cifras = Array(1000).fill(0);
+
+let resumenGeneral = {
+    boletasJugadas: 0,
+    dineroGastado: 0,
+    dineroGanado: 0
+};
+
+cargarDatos();
+crearTabla();
+actualizarPreview();
+
+function guardarDatos(){
+    localStorage.setItem("instantanea_historialSorteos", JSON.stringify(historialSorteos));
+    localStorage.setItem("instantanea_frecuencia2", JSON.stringify(frecuencia2Cifras));
+    localStorage.setItem("instantanea_frecuencia3", JSON.stringify(frecuencia3Cifras));
+    localStorage.setItem("instantanea_resumenGeneral", JSON.stringify(resumenGeneral));
+}
+
+function cargarDatos(){
+    const h = localStorage.getItem("instantanea_historialSorteos");
+    const f2 = localStorage.getItem("instantanea_frecuencia2");
+    const f3 = localStorage.getItem("instantanea_frecuencia3");
+    const rg = localStorage.getItem("instantanea_resumenGeneral");
+
+    if(h) historialSorteos = JSON.parse(h);
+    if(f2) frecuencia2Cifras = JSON.parse(f2);
+    if(f3) frecuencia3Cifras = JSON.parse(f3);
+    if(rg) resumenGeneral = JSON.parse(rg);
+}
+
+function formatearDinero(n){
+    return "$" + Number(n || 0).toLocaleString("es-AR");
+}
+
+function padNumero(numero, cifras){
+    return String(numero).padStart(cifras, "0");
+}
+
+function crearFilaHTML(index, data = {}){
+    const numero = data.numero ?? "";
+    const cifras = data.cifras ?? 3;
+    const cabeza = data.cabeza ?? 0;
+    const cinco = data.cinco ?? 0;
+    const diez = data.diez ?? 0;
+
+    return `
+        <tr>
+            <td><strong>${index + 1}</strong></td>
+            <td>
+                <input type="number" class="numero numInput" min="0" max="999" value="${numero}" placeholder="Ej: 777" oninput="ajustarSegunCifras(this); actualizarPreview();">
+            </td>
+            <td>
+                <select class="cifras smallInput" onchange="ajustarSegunCifras(this.closest('tr').querySelector('.numero')); actualizarPreview();">
+                    <option value="3" ${cifras == 3 ? "selected" : ""}>3</option>
+                    <option value="2" ${cifras == 2 ? "selected" : ""}>2</option>
+                </select>
+            </td>
+            <td><input type="number" class="cabeza smallInput" min="0" value="${cabeza}" oninput="actualizarPreview()"></td>
+            <td><input type="number" class="cinco smallInput" min="0" value="${cinco}" oninput="actualizarPreview()"></td>
+            <td><input type="number" class="diez smallInput" min="0" value="${diez}" oninput="actualizarPreview()"></td>
+            <td>
+                <div class="moneyBtns">
+                    <button type="button" onclick="cargarRapidoFila(this,50)">50</button>
+                    <button type="button" onclick="cargarRapidoFila(this,100)">100</button>
+                    <button type="button" onclick="cargarRapidoFila(this,200)">200</button>
+                    <button type="button" onclick="cargarRapidoFila(this,500)">500</button>
+                </div>
+            </td>
+            <td>
+                <button class="btn-danger" type="button" onclick="eliminarFila(this)">X</button>
+            </td>
+        </tr>
+    `;
+}
 
 function crearTabla(){
-    const cantidad=document.getElementById("cantidad").value;
-    const tbody=document.querySelector("#tabla tbody");
-    tbody.innerHTML="";
+    const cantidad = parseInt(document.getElementById("cantidad").value) || 3;
+    const tbody = document.querySelector("#tabla tbody");
+    tbody.innerHTML = "";
 
-    for(let i=0;i<cantidad;i++){
-        tbody.innerHTML+=`
-        <tr>
-        <td><input type="number" class="numero"></td>
-        <td>
-        <select class="cifras">
-        <option value="3">3</option>
-        <option value="2">2</option>
-        </select>
-        </td>
-        <td><input type="number" class="cabeza" value="0"></td>
-        <td><input type="number" class="cinco" value="0"></td>
-        <td><input type="number" class="diez" value="0"></td>
-        </tr>`;
+    for(let i = 0; i < cantidad; i++){
+        tbody.innerHTML += crearFilaHTML(i);
     }
 
-    document.getElementById("tabla").style.display="table";
+    reindexarFilas();
+    actualizarPreview();
+}
+
+function cargarJugadaClasica(){
+    const tbody = document.querySelector("#tabla tbody");
+    const clasica = [
+        { numero: 64, cifras: 2, cabeza: 100, cinco: 0, diez: 100 },
+        { numero: 32, cifras: 2, cabeza: 100, cinco: 0, diez: 100 },
+        { numero: 86, cifras: 2, cabeza: 100, cinco: 0, diez: 100 }
+    ];
+
+    tbody.innerHTML = "";
+    clasica.forEach((fila, i) => {
+        tbody.innerHTML += crearFilaHTML(i, fila);
+    });
+
+    document.getElementById("cantidad").value = 3;
+    actualizarPreview();
+}
+
+function agregarFila(data = {}){
+    const tbody = document.querySelector("#tabla tbody");
+    const index = tbody.querySelectorAll("tr").length;
+    tbody.insertAdjacentHTML("beforeend", crearFilaHTML(index, data));
+    reindexarFilas();
+    actualizarPreview();
+}
+
+function eliminarFila(btn){
+    const tbody = document.querySelector("#tabla tbody");
+    const filas = tbody.querySelectorAll("tr");
+
+    if(filas.length <= 1){
+        limpiarJugadas();
+        return;
+    }
+
+    btn.closest("tr").remove();
+    reindexarFilas();
+    actualizarPreview();
+}
+
+function reindexarFilas(){
+    document.querySelectorAll("#tabla tbody tr").forEach((tr, i) => {
+        tr.children[0].innerHTML = `<strong>${i + 1}</strong>`;
+    });
+    document.getElementById("cantidad").value = document.querySelectorAll("#tabla tbody tr").length;
+}
+
+function limpiarJugadas(){
+    document.querySelectorAll("#tabla tbody tr").forEach(tr => {
+        tr.querySelector(".numero").value = "";
+        tr.querySelector(".cifras").value = "3";
+        tr.querySelector(".cabeza").value = 0;
+        tr.querySelector(".cinco").value = 0;
+        tr.querySelector(".diez").value = 0;
+    });
+
+    sorteosGlobal = [];
+    document.getElementById("sorteo").classList.add("hide");
+    document.getElementById("resultado").classList.add("hide");
+    actualizarPreview();
+}
+
+function vaciarMontos(){
+    document.querySelectorAll(".cabeza, .cinco, .diez").forEach(inp => inp.value = 0);
+    actualizarPreview();
+}
+
+function setMontoRapido(valor){
+    document.getElementById("montoMasivo").value = valor;
+}
+
+function aplicarMontoMasivo(tipo){
+    const monto = parseInt(document.getElementById("montoMasivo").value) || 0;
+    const filas = document.querySelectorAll("#tabla tbody tr");
+
+    filas.forEach(fila => {
+        if(tipo === "cabeza" || tipo === "todos") fila.querySelector(".cabeza").value = monto;
+        if(tipo === "cinco" || tipo === "todos") fila.querySelector(".cinco").value = monto;
+        if(tipo === "diez" || tipo === "todos") fila.querySelector(".diez").value = monto;
+    });
+
+    actualizarPreview();
+}
+
+function cargarRapidoFila(btn, monto){
+    const fila = btn.closest("tr");
+    fila.querySelector(".cabeza").value = monto;
+    fila.querySelector(".cinco").value = monto;
+    fila.querySelector(".diez").value = monto;
+    actualizarPreview();
+}
+
+function ajustarSegunCifras(inputNumero){
+    const fila = inputNumero.closest("tr");
+    const cifras = parseInt(fila.querySelector(".cifras").value);
+
+    inputNumero.max = cifras === 2 ? 99 : 999;
+
+    if(inputNumero.value !== ""){
+        let valor = parseInt(inputNumero.value) || 0;
+        if(cifras === 2 && valor > 99) valor = valor % 100;
+        if(cifras === 3 && valor > 999) valor = valor % 1000;
+        inputNumero.value = valor;
+    }
+}
+
+function obtenerJugadasDesdeTabla(){
+    const filas = document.querySelectorAll("#tabla tbody tr");
+    const jugadas = [];
+
+    filas.forEach(fila => {
+        const numeroRaw = fila.querySelector(".numero").value;
+        const cifras = parseInt(fila.querySelector(".cifras").value);
+        const cabeza = parseInt(fila.querySelector(".cabeza").value) || 0;
+        const cinco = parseInt(fila.querySelector(".cinco").value) || 0;
+        const diez = parseInt(fila.querySelector(".diez").value) || 0;
+
+        if(numeroRaw !== ""){
+            let numero = parseInt(numeroRaw);
+            if(!isNaN(numero)){
+                if(cifras === 2) numero = numero % 100;
+                if(cifras === 3) numero = numero % 1000;
+
+                if(cabeza > 0 || cinco > 0 || diez > 0){
+                    jugadas.push({ numero, cifras, cabeza, cinco, diez });
+                }
+            }
+        }
+    });
+
+    return jugadas;
+}
+
+function actualizarPreview(){
+    jugadasGlobal = obtenerJugadasDesdeTabla();
+    const cantidadSorteos = Math.max(1, parseInt(document.getElementById("cantidadSorteos").value) || 1);
+
+    document.getElementById("numerosBoleta").textContent = jugadasGlobal.length;
+    document.getElementById("sorteosBoleta").textContent = cantidadSorteos;
+
+    let totalBoleta = 0;
+    jugadasGlobal.forEach(j => totalBoleta += j.cabeza + j.cinco + j.diez);
+
+    const totalFinal = totalBoleta * cantidadSorteos;
+    document.getElementById("totalApostado").textContent = formatearDinero(totalFinal);
+
+    const cont = document.getElementById("ticketContenido");
+
+    if(jugadasGlobal.length === 0){
+        cont.className = "empty";
+        cont.innerHTML = "Cargá tus números y montos para ver la boleta.";
+        return;
+    }
+
+    cont.className = "";
+    cont.innerHTML = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Número</th>
+                    <th>Cifras</th>
+                    <th>Cabeza</th>
+                    <th>A los 5</th>
+                    <th>A los 10</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${jugadasGlobal.map(j => `
+                    <tr>
+                        <td><strong>${padNumero(j.numero, j.cifras)}</strong></td>
+                        <td>${j.cifras}</td>
+                        <td>${formatearDinero(j.cabeza)}</td>
+                        <td>${formatearDinero(j.cinco)}</td>
+                        <td>${formatearDinero(j.diez)}</td>
+                    </tr>
+                `).join("")}
+            </tbody>
+        </table>
+
+        <div style="margin-top:12px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+            <div><strong>Esta boleta se jugará en:</strong> ${cantidadSorteos} sorteo(s)</div>
+            <div><strong>Total final:</strong> ${formatearDinero(totalFinal)}</div>
+        </div>
+    `;
 }
 
 function generarSorteo(){
-    let nums=[];
-    while(nums.length<10){
-        let n=Math.floor(Math.random()*1000);
+    const nums = [];
+    while(nums.length < 10){
+        const n = Math.floor(Math.random() * 1000);
         if(!nums.includes(n)) nums.push(n);
     }
     return nums;
 }
 
-function actualizarHistorial(sorteo){
+function actualizarHistorialFrecuencias(sorteo){
     historialSorteos.push(sorteo);
 
-    sorteo.forEach(num=>{
+    sorteo.forEach(num => {
         frecuencia3Cifras[num]++;
-        frecuencia2Cifras[num%100]++;
+        frecuencia2Cifras[num % 100]++;
     });
+}
+
+function mostrarSorteos(){
+    const box = document.getElementById("sorteo");
+    const lista = document.getElementById("sorteosLista");
+    box.classList.remove("hide");
+
+    lista.innerHTML = sorteosGlobal.map((sorteo, idx) => `
+        <div class="sorteoItem">
+            <h4>Sorteo ${idx + 1}</h4>
+            <div class="bolillasGrid">
+                ${sorteo.map((num, i) => `
+                    <div class="bolilla">
+                        <span>${i + 1}°</span>
+                        <span>${String(num).padStart(3, "0")}</span>
+                    </div>
+                `).join("")}
+            </div>
+        </div>
+    `).join("");
+}
+
+function calcularPremioDeUnSorteo(jugadas, sorteo){
+    let premio = 0;
+    let aciertos = [];
+
+    jugadas.forEach(j => {
+        const numComp = j.cifras === 2 ? j.numero % 100 : j.numero;
+        const sorteoComp = sorteo.map(n => j.cifras === 2 ? n % 100 : n);
+
+        if(j.cabeza > 0 && numComp === sorteoComp[0]){
+            const gana = j.cabeza * 70;
+            premio += gana;
+            aciertos.push({
+                numero: padNumero(j.numero, j.cifras),
+                tipo: "Cabeza",
+                importe: j.cabeza,
+                premio: gana
+            });
+        }
+
+        if(j.cinco > 0 && sorteoComp.slice(0,5).includes(numComp)){
+            const gana = j.cinco * 14;
+            premio += gana;
+            aciertos.push({
+                numero: padNumero(j.numero, j.cifras),
+                tipo: "A los 5",
+                importe: j.cinco,
+                premio: gana
+            });
+        }
+
+        if(j.diez > 0 && sorteoComp.includes(numComp)){
+            const gana = j.diez * 7;
+            premio += gana;
+            aciertos.push({
+                numero: padNumero(j.numero, j.cifras),
+                tipo: "A los 10",
+                importe: j.diez,
+                premio: gana
+            });
+        }
+    });
+
+    return { premio, aciertos };
 }
 
 function jugar(){
+    actualizarPreview();
+    jugadasGlobal = obtenerJugadasDesdeTabla();
 
-    const filas=document.querySelectorAll("#tabla tbody tr");
-    jugadasGlobal=[];
-
-    filas.forEach(fila=>{
-        const numero=parseInt(fila.querySelector(".numero").value);
-        const cifras=parseInt(fila.querySelector(".cifras").value);
-        const cabeza=parseInt(fila.querySelector(".cabeza").value)||0;
-        const cinco=parseInt(fila.querySelector(".cinco").value)||0;
-        const diez=parseInt(fila.querySelector(".diez").value)||0;
-
-        if(!isNaN(numero)){
-            jugadasGlobal.push({numero,cifras,cabeza,cinco,diez});
-        }
-    });
-
-    if(jugadasGlobal.length===0){
-        alert("Cargá al menos un número");
+    if(jugadasGlobal.length === 0){
+        alert("Cargá al menos un número con algún importe.");
         return;
     }
 
-    sorteoGlobal=generarSorteo();
-    actualizarHistorial(sorteoGlobal);
+    const cantidadSorteos = Math.max(1, parseInt(document.getElementById("cantidadSorteos").value) || 1);
 
-    mostrarSorteoAnimado();
-}
+    let costoBoleta = 0;
+    jugadasGlobal.forEach(j => costoBoleta += j.cabeza + j.cinco + j.diez);
+    const costoTotal = costoBoleta * cantidadSorteos;
 
-function mostrarSorteoAnimado(){
-    document.getElementById("sorteo").style.display="block";
-    document.getElementById("sorteo").innerHTML=`<h3>Sorteo</h3>
-    <div class="sorteoGrid">
-        <div id="col1"></div>
-        <div id="col2"></div>
-    </div>`;
+    sorteosGlobal = [];
+    let premioTotal = 0;
+    let todosLosAciertos = [];
 
-    let i=0;
-    const intervalo=setInterval(()=>{
-        const num=sorteoGlobal[i].toString().padStart(3,'0');
-        const destino=i<5 ? document.getElementById("col1") : document.getElementById("col2");
+    for(let i = 0; i < cantidadSorteos; i++){
+        const sorteo = generarSorteo();
+        sorteosGlobal.push(sorteo);
+        actualizarHistorialFrecuencias(sorteo);
 
-        destino.innerHTML+=`<div class="numeroAnimado">${i+1}° ${num}</div>`;
-        i++;
+        const resultado = calcularPremioDeUnSorteo(jugadasGlobal, sorteo);
+        premioTotal += resultado.premio;
 
-        if(i>=10) clearInterval(intervalo);
-
-    },300);
-}
-
-function verificar(){
-
-    if(sorteoGlobal.length===0){
-        alert("Primero jugá");
-        return;
+        resultado.aciertos.forEach(a => {
+            todosLosAciertos.push({
+                ...a,
+                sorteo: i + 1
+            });
+        });
     }
 
-    let premio=0;
-    let aciertos=[];
+    resumenGeneral.boletasJugadas += cantidadSorteos;
+    resumenGeneral.dineroGastado += costoTotal;
+    resumenGeneral.dineroGanado += premioTotal;
 
-    jugadasGlobal.forEach(j=>{
-        const numComp=j.cifras==2 ? j.numero%100 : j.numero;
-        const sorteoComp=sorteoGlobal.map(n=>j.cifras==2 ? n%100 : n);
+    guardarDatos();
+    mostrarSorteos();
+    mostrarResultadoFinal(cantidadSorteos, costoTotal, premioTotal, todosLosAciertos);
+}
 
-        if(j.cabeza>0 && numComp===sorteoComp[0]){
-            let mult=j.cifras==2 ? 70 : 3500;
-            premio+=j.cabeza*mult;
-            aciertos.push(`${j.numero} cabeza`);
-        }
+function mostrarResultadoFinal(cantidadSorteos, costoTotal, premioTotal, todosLosAciertos){
+    const res = document.getElementById("resultado");
+    res.classList.remove("hide");
 
-        if(j.cinco>0 && sorteoComp.slice(0,5).includes(numComp)){
-            let mult=j.cifras==2 ? 14 : 600;
-            premio+=j.cinco*mult;
-            aciertos.push(`${j.numero} a los 5`);
-        }
+    if(premioTotal > 0){
+        res.className = "resultados";
+        res.innerHTML = `
+            <div class="resultadoTop">
+                <div>
+                    <h3>Resultado ganador</h3>
+                    <div>Boleta jugada en <strong>${cantidadSorteos}</strong> sorteo(s) distintos.</div>
+                </div>
+                <div class="ganancia win">${formatearDinero(premioTotal)}</div>
+            </div>
 
-        if(j.diez>0 && sorteoComp.includes(numComp)){
-            let mult=j.cifras==2 ? 7 : 70;
-            premio+=j.diez*mult;
-            aciertos.push(`${j.numero} a los 10`);
-        }
-    });
+            <div style="margin-top:10px;">
+                <strong>Gastado:</strong> ${formatearDinero(costoTotal)} &nbsp; | &nbsp;
+                <strong>Ganado:</strong> ${formatearDinero(premioTotal)} &nbsp; | &nbsp;
+                <strong>Balance:</strong> ${formatearDinero(premioTotal - costoTotal)}
+            </div>
 
-    const res=document.getElementById("resultado");
-    res.style.display="block";
+            <div class="aciertosList">
+                ${todosLosAciertos.map(a => `
+                    <div class="hit">
+                        <div>
+                            <strong>Sorteo ${a.sorteo}</strong> — ${a.numero} — ${a.tipo}
+                            <br><small>Apostado: ${formatearDinero(a.importe)}</small>
+                        </div>
+                        <div><strong>${formatearDinero(a.premio)}</strong></div>
+                    </div>
+                `).join("")}
+            </div>
+        `;
+    } else {
+        res.className = "resultados perdedor";
+        res.innerHTML = `
+            <div class="resultadoTop">
+                <div>
+                    <h3>Sin aciertos</h3>
+                    <div>Boleta jugada en <strong>${cantidadSorteos}</strong> sorteo(s) distintos.</div>
+                </div>
+                <div class="ganancia loss">${formatearDinero(0)}</div>
+            </div>
 
-    if(premio>0){
-        res.className="resultados";
-        res.innerHTML=`<h3>Resultado</h3>
-        Aciertos: ${aciertos.join(", ")}<br>
-        <strong>Ganaste: $${premio}</strong>`;
-    }else{
-        res.className="resultados perdedor";
-        res.innerHTML=`<h3>Resultado</h3>No hubo aciertos`;
+            <div style="margin-top:10px;">
+                <strong>Gastado:</strong> ${formatearDinero(costoTotal)} &nbsp; | &nbsp;
+                <strong>Balance:</strong> ${formatearDinero(-costoTotal)}
+            </div>
+        `;
     }
 }
 
-function topFrecuentes(arr,cantidad,cifras,asc=false){
-    let lista=arr.map((v,i)=>({numero:i,veces:v}));
-    lista.sort((a,b)=> asc ? a.veces-b.veces : b.veces-a.veces);
+function topFrecuentes(arr, cantidad, cifras, asc = false){
+    const lista = arr.map((v, i) => ({ numero: i, veces: v }));
+    lista.sort((a, b) => asc ? a.veces - b.veces : b.veces - a.veces);
+    const maximo = Math.max(...lista.map(x => x.veces), 1);
 
-    return lista.slice(0,cantidad).map(e=>{
-        let n=e.numero.toString().padStart(cifras,'0');
-        let barra="█".repeat(Math.min(e.veces,20));
-        return `${n} (${e.veces}) <br><span class="barra">${barra}</span>`;
-    }).join("<br>");
+    return lista.slice(0, cantidad).map(e => {
+        const n = String(e.numero).padStart(cifras, "0");
+        const porcentaje = Math.max(4, (e.veces / maximo) * 100);
+
+        return `
+            <div class="rankItem">
+                <div class="rankTop">
+                    <span>${n}</span>
+                    <span>${e.veces} vez${e.veces === 1 ? "" : "es"}</span>
+                </div>
+                <div class="barraWrap">
+                    <div class="barra" style="width:${porcentaje}%"></div>
+                </div>
+            </div>
+        `;
+    }).join("");
 }
 
 function verHistorial(){
+    const div = document.getElementById("estadisticas");
+    document.getElementById("estadisticasCard").classList.remove("hide");
 
-    if(historialSorteos.length===0){
-        alert("Todavía no hay sorteos");
-        return;
-    }
+    const top2 = topFrecuentes(frecuencia2Cifras, 10, 2, false);
+    const top3 = topFrecuentes(frecuencia3Cifras, 10, 3, false);
+    const frios2 = topFrecuentes(frecuencia2Cifras, 10, 2, true);
+    const frios3 = topFrecuentes(frecuencia3Cifras, 10, 3, true);
 
-    const top2=topFrecuentes(frecuencia2Cifras,10,2,false);
-    const top3=topFrecuentes(frecuencia3Cifras,10,3,false);
-    const frios2=topFrecuentes(frecuencia2Cifras,10,2,true);
-    const frios3=topFrecuentes(frecuencia3Cifras,10,3,true);
+    const balance = resumenGeneral.dineroGanado - resumenGeneral.dineroGastado;
 
-    const div=document.getElementById("estadisticas");
-    div.style.display="block";
+    div.innerHTML = `
+        <div class="statCards" style="margin-bottom:14px;">
+            <div class="stat">
+                <span>Boletas jugadas</span>
+                <strong>${resumenGeneral.boletasJugadas}</strong>
+            </div>
+            <div class="stat">
+                <span>Dinero gastado</span>
+                <strong>${formatearDinero(resumenGeneral.dineroGastado)}</strong>
+            </div>
+            <div class="stat">
+                <span>Dinero ganado</span>
+                <strong>${formatearDinero(resumenGeneral.dineroGanado)}</strong>
+            </div>
+            <div class="stat">
+                <span>Balance</span>
+                <strong>${formatearDinero(balance)}</strong>
+            </div>
+            <div class="stat">
+                <span>Calientes 2 cifras</span>
+                <strong>${historialSorteos.length ? "Top 10" : "-"}</strong>
+            </div>
+            <div class="stat">
+                <span>Calientes 3 cifras</span>
+                <strong>${historialSorteos.length ? "Top 10" : "-"}</strong>
+            </div>
+        </div>
 
-    div.innerHTML=`
-    <h3>📊 Estadísticas</h3>
-    Sorteos realizados: ${historialSorteos.length}
+        <div class="columns2">
+            <div class="statsBox">
+                <h4>Calientes 2 cifras</h4>
+                <div class="rankList">${top2}</div>
+            </div>
 
-    <h4>🔥 Calientes 2 cifras</h4>${top2}
-    <h4>🔥 Calientes 3 cifras</h4>${top3}
+            <div class="statsBox">
+                <h4>Calientes 3 cifras</h4>
+                <div class="rankList">${top3}</div>
+            </div>
 
-    <h4>❄️ Fríos 2 cifras</h4>${frios2}
-    <h4>❄️ Fríos 3 cifras</h4>${frios3}
+            <div class="statsBox">
+                <h4>Fríos 2 cifras</h4>
+                <div class="rankList">${frios2}</div>
+            </div>
+
+            <div class="statsBox">
+                <h4>Fríos 3 cifras</h4>
+                <div class="rankList">${frios3}</div>
+            </div>
+        </div>
     `;
 }
 
 function resetearHistorial(){
-    historialSorteos=[];
-    frecuencia2Cifras=Array(100).fill(0);
-    frecuencia3Cifras=Array(1000).fill(0);
-    document.getElementById("estadisticas").style.display="none";
-    alert("Historial borrado");
+    historialSorteos = [];
+    frecuencia2Cifras = Array(100).fill(0);
+    frecuencia3Cifras = Array(1000).fill(0);
+    resumenGeneral = {
+        boletasJugadas: 0,
+        dineroGastado: 0,
+        dineroGanado: 0
+    };
+    guardarDatos();
+    document.getElementById("estadisticasCard").classList.add("hide");
+    document.getElementById("estadisticas").innerHTML = "";
+    alert("Historial y balance borrados.");
 }
+
+document.getElementById("cantidadSorteos").addEventListener("input", actualizarPreview);
 </script>
 
 </body>
