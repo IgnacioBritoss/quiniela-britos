@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini HaxBall vs Bot</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: radial-gradient(circle at top, #173f73 0%, #0f2444 40%, #08111f 100%);
+      color: #eef5ff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .wrap {
+      width: 100%;
+      max-width: 1180px;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 16px;
+    }
+    .panel, .side {
+      background: rgba(9, 16, 30, 0.9);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      font-weight: 800;
+      background: linear-gradient(90deg, rgba(46,144,255,0.18), rgba(46,204,113,0.12));
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .score {
+      font-size: 28px;
+      letter-spacing: 1px;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #2c8b57;
+    }
+    .side {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+    .muted {
+      color: #bfd0ea;
+      line-height: 1.45;
+      font-size: 14px;
+    }
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 14px;
+    }
+    .keys {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      max-width: 150px;
+      margin-top: 8px;
+    }
+    .key {
+      text-align: center;
+      padding: 10px 0;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-weight: 700;
+    }
+    .blank { opacity: 0; }
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      background: linear-gradient(90deg, #2e90ff, #32c671);
+      color: white;
+      box-shadow: 0 10px 24px rgba(46,144,255,0.28);
+    }
+    .small { font-size: 13px; color: #d3def1; }
+    .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.07);
+      font-size: 12px;
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+    @media (max-width: 920px) {
+      .wrap { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="panel">
+      <div class="topbar">
+        <div>Azul: vos</div>
+        <div class="score"><span id="leftScore">0</span> - <span id="rightScore">0</span></div>
+        <div>Rojo: bot</div>
+      </div>
+      <canvas id="game" width="860" height="520"></canvas>
+    </div>
+
+    <aside class="side">
+      <h1>Mini HaxBall</h1>
+      <div class="muted">
+        Inspirado en HaxBall: controlás el jugador azul con las flechitas y jugás contra un bot rojo.
+        Meté goles en el arco derecho y defendé el izquierdo.
+      </div>
+
+      <div class="card">
+        <strong>Controles</strong>
+        <div class="keys">
+          <div class="key blank">&nbsp;</div>
+          <div class="key">↑</div>
+          <div class="key blank">&nbsp;</div>
+          <div class="key">←</div>
+          <div class="key">↓</div>
+          <div class="key">→</div>
+        </div>
+        <div class="small" style="margin-top:10px;">Shift = sprint / patada más fuerte cerca de la pelota</div>
+      </div>
+
+      <div class="card small">
+        <strong>Cómo juega el bot</strong><br><br>
+        • Si la pelota está cerca, la ataca.<br>
+        • Si no, vuelve a defender.<br>
+        • Cuando llega, trata de empujarla a tu arco.<br>
+      </div>
+
+      <div>
+        <span class="tag">1 vs 1</span>
+        <span class="tag">física arcade</span>
+        <span class="tag">bot incluido</span>
+      </div>
+
+      <button id="restartBtn">Reiniciar partido</button>
+      <div class="small">Tecla R para sacar del medio rápido.</div>
+    </aside>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    const leftScoreEl = document.getElementById('leftScore');
+    const rightScoreEl = document.getElementById('rightScore');
+    const restartBtn = document.getElementById('restartBtn');
+
+    const W = canvas.width;
+    const H = canvas.height;
+    const goalH = 170;
+    const field = { x: 24, y: 24, w: W - 48, h: H - 48 };
+    const center = { x: W / 2, y: H / 2 };
+
+    const state = {
+      keys: {},
+      leftScore: 0,
+      rightScore: 0,
+      message: 'Saque inicial',
+      messageTimer: 100,
+      player: null,
+      bot: null,
+      ball: null
+    };
+
+    function makeDisc(x, y, r, color) {
+      return { x, y, vx: 0, vy: 0, r, color };
+    }
+
+    function resetPositions(kickoffToRight = true) {
+      state.player = makeDisc(field.x + 130, center.y, 22, '#49a7ff');
+      state.bot = makeDisc(field.x + field.w - 130, center.y, 22, '#ff6262');
+      state.ball = makeDisc(center.x, center.y, 14, '#f4f7fb');
+      state.ball.vx = kickoffToRight ? 2.2 : -2.2;
+      state.ball.vy = (Math.random() - 0.5) * 1.5;
+    }
+
+    function restartMatch() {
+      state.leftScore = 0;
+      state.rightScore = 0;
+      state.message = 'Nuevo partido';
+      state.messageTimer = 80;
+      resetPositions(true);
+      syncHud();
+    }
+
+    function syncHud() {
+      leftScoreEl.textContent = state.leftScore;
+      rightScoreEl.textContent = state.rightScore;
+    }
+
+    function clamp(v, min, max) {
+      return Math.max(min, Math.min(max, v));
+    }
+
+    function distance(a, b) {
+      return Math.hypot(a.x - b.x, a.y - b.y);
+    }
+
+    function normalize(x, y) {
+      const len = Math.hypot(x, y) || 1;
+      return { x: x / len, y: y / len };
+    }
+
+    function movePlayer() {
+      const p = state.player;
+      let ax = 0, ay = 0;
+      if (state.keys['ArrowUp']) ay -= 1;
+      if (state.keys['ArrowDown']) ay += 1;
+      if (state.keys['ArrowLeft']) ax -= 1;
+      if (state.keys['ArrowRight']) ax += 1;
+
+      if (ax !== 0 || ay !== 0) {
+        const n = normalize(ax, ay);
+        const accel = state.keys['Shift'] ? 0.45 : 0.32;
+        p.vx += n.x * accel;
+        p.vy += n.y * accel;
+      }
+    }
+
+    function moveBot() {
+      const b = state.bot;
+      const ball = state.ball;
+      const ownGoal = { x: field.x, y: center.y };
+      const distBall = distance(b, ball);
+      const ballOnBotSide = ball.x > center.x - 30;
+
+      let targetX, targetY;
+      if (distBall < 210 || ballOnBotSide) {
+        const pushTarget = { x: field.x + 90, y: clamp(ball.y, center.y - 90, center.y + 90) };
+        const toGoal = normalize(pushTarget.x - ball.x, pushTarget.y - ball.y);
+        targetX = ball.x - toGoal.x * 28;
+        targetY = ball.y - toGoal.y * 28;
+      } else {
+        targetX = ownGoal.x + 105;
+        targetY = center.y + (ball.y - center.y) * 0.35;
+      }
+
+      const dir = normalize(targetX - b.x, targetY - b.y);
+      b.vx += dir.x * 0.26;
+      b.vy += dir.y * 0.26;
+
+      if (distBall < 48) {
+        const strike = normalize(ball.x - b.x, ball.y - b.y);
+        b.vx += strike.x * 0.12;
+        b.vy += strike.y * 0.12;
+        ball.vx += strike.x * 0.28;
+        ball.vy += strike.y * 0.28;
+      }
+    }
+
+    function applyDiscPhysics(disc, maxSpeed, friction) {
+      disc.vx *= friction;
+      disc.vy *= friction;
+      const sp = Math.hypot(disc.vx, disc.vy);
+      if (sp > maxSpeed) {
+        disc.vx = (disc.vx / sp) * maxSpeed;
+        disc.vy = (disc.vy / sp) * maxSpeed;
+      }
+      disc.x += disc.vx;
+      disc.y += disc.vy;
+    }
+
+    function keepDiscInField(disc, allowGoalThrough = false) {
+      const top = field.y + disc.r;
+      const bottom = field.y + field.h - disc.r;
+      const inGoalMouth = disc.y > center.y - goalH / 2 && disc.y < center.y + goalH / 2;
+
+      if (disc.y < top) {
+        disc.y = top;
+        disc.vy *= -0.9;
+      }
+      if (disc.y > bottom) {
+        disc.y = bottom;
+        disc.vy *= -0.9;
+      }
+
+      if (!allowGoalThrough || !inGoalMouth) {
+        const left = field.x + disc.r;
+        const right = field.x + field.w - disc.r;
+        if (disc.x < left) {
+          disc.x = left;
+          disc.vx *= -0.9;
+        }
+        if (disc.x > right) {
+          disc.x = right;
+          disc.vx *= -0.9;
+        }
+      }
+    }
+
+    function resolveCollision(a, b, bounce = 1.02) {
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const dist = Math.hypot(dx, dy) || 0.001;
+      const minDist = a.r + b.r;
+      if (dist >= minDist) return;
+
+      const nx = dx / dist;
+      const ny = dy / dist;
+      const overlap = minDist - dist;
+
+      a.x -= nx * overlap * 0.5;
+      a.y -= ny * overlap * 0.5;
+      b.x += nx * overlap * 0.5;
+      b.y += ny * overlap * 0.5;
+
+      const rvx = b.vx - a.vx;
+      const rvy = b.vy - a.vy;
+      const velAlongNormal = rvx * nx + rvy * ny;
+      if (velAlongNormal > 0) return;
+
+      const impulse = -(bounce) * velAlongNormal / 2;
+      const ix = impulse * nx;
+      const iy = impulse * ny;
+
+      a.vx -= ix;
+      a.vy -= iy;
+      b.vx += ix;
+      b.vy += iy;
+    }
+
+    function playerKickBoost() {
+      const p = state.player;
+      const ball = state.ball;
+      const d = distance(p, ball);
+      if (state.keys['Shift'] && d < p.r + ball.r + 8) {
+        const dir = normalize(ball.x - p.x, ball.y - p.y);
+        ball.vx += dir.x * 0.45;
+        ball.vy += dir.y * 0.45;
+      }
+    }
+
+    function checkGoal() {
+      const ball = state.ball;
+      const inGoal = ball.y > center.y - goalH / 2 && ball.y < center.y + goalH / 2;
+      if (!inGoal) return;
+
+      if (ball.x - ball.r <= field.x - 8) {
+        state.rightScore += 1;
+        state.message = 'Gol del bot';
+        state.messageTimer = 90;
+        resetPositions(true);
+        syncHud();
+      } else if (ball.x + ball.r >= field.x + field.w + 8) {
+        state.leftScore += 1;
+        state.message = 'Gol tuyo';
+        state.messageTimer = 90;
+        resetPositions(false);
+        syncHud();
+      }
+    }
+
+    function update() {
+      movePlayer();
+      moveBot();
+      playerKickBoost();
+
+      applyDiscPhysics(state.player, 6.7, 0.92);
+      applyDiscPhysics(state.bot, 6.1, 0.93);
+      applyDiscPhysics(state.ball, 9.5, 0.992);
+
+      resolveCollision(state.player, state.ball, 1.06);
+      resolveCollision(state.bot, state.ball, 1.06);
+      resolveCollision(state.player, state.bot, 1.0);
+
+      keepDiscInField(state.player, false);
+      keepDiscInField(state.bot, false);
+      keepDiscInField(state.ball, true);
+
+      checkGoal();
+
+      if (state.messageTimer > 0) state.messageTimer--;
+    }
+
+    function drawField() {
+      ctx.clearRect(0, 0, W, H);
+
+      ctx.fillStyle = '#2c8b57';
+      ctx.fillRect(0, 0, W, H);
+
+      ctx.fillStyle = '#227247';
+      for (let i = 0; i < 10; i++) {
+        ctx.fillRect(field.x + i * (field.w / 10), field.y, field.w / 20, field.h);
+      }
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.88)';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(field.x, field.y, field.w, field.h);
+
+      ctx.beginPath();
+      ctx.moveTo(center.x, field.y);
+      ctx.lineTo(center.x, field.y + field.h);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(center.x, center.y, 74, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(center.x, center.y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.fill();
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.95)';
+      ctx.lineWidth = 5;
+
+      ctx.beginPath();
+      ctx.moveTo(field.x, center.y - goalH / 2);
+      ctx.lineTo(field.x - 18, center.y - goalH / 2);
+      ctx.lineTo(field.x - 18, center.y + goalH / 2);
+      ctx.lineTo(field.x, center.y + goalH / 2);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(field.x + field.w, center.y - goalH / 2);
+      ctx.lineTo(field.x + field.w + 18, center.y - goalH / 2);
+      ctx.lineTo(field.x + field.w + 18, center.y + goalH / 2);
+      ctx.lineTo(field.x + field.w, center.y + goalH / 2);
+      ctx.stroke();
+
+      ctx.globalAlpha = 0.18;
+      ctx.fillStyle = '#49a7ff';
+      ctx.beginPath();
+      ctx.arc(field.x + 120, center.y, 110, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ff6262';
+      ctx.beginPath();
+      ctx.arc(field.x + field.w - 120, center.y, 110, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
+    function drawDisc(disc, innerColor = 'rgba(255,255,255,0.22)') {
+      ctx.beginPath();
+      ctx.fillStyle = disc.color;
+      ctx.arc(disc.x, disc.y, disc.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.fillStyle = innerColor;
+      ctx.arc(disc.x - disc.r * 0.18, disc.y - disc.r * 0.18, disc.r * 0.45, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawBall() {
+      const b = state.ball;
+      ctx.beginPath();
+      ctx.fillStyle = '#f4f7fb';
+      ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.fillStyle = '#d8e2f1';
+      ctx.arc(b.x - 3, b.y - 3, b.r * 0.38, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawMessage() {
+      if (state.messageTimer <= 0) return;
+      ctx.fillStyle = 'rgba(0,0,0,0.24)';
+      ctx.fillRect(W / 2 - 110, 18, 220, 40);
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.font = 'bold 22px Arial';
+      ctx.fillText(state.message, W / 2, 45);
+    }
+
+    function draw() {
+      drawField();
+      drawDisc(state.player);
+      drawDisc(state.bot);
+      drawBall();
+      drawMessage();
+    }
+
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    window.addEventListener('keydown', (e) => {
+      state.keys[e.key] = true;
+      if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Shift',' '].includes(e.key)) e.preventDefault();
+      if (e.key.toLowerCase() === 'r') restartMatch();
+    }, { passive: false });
+
+    window.addEventListener('keyup', (e) => {
+      state.keys[e.key] = false;
+    });
+
+    restartBtn.addEventListener('click', restartMatch);
+
+    restartMatch();
+    loop();
+  </script>
+</body>
+</html>
